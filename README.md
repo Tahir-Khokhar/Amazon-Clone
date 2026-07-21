@@ -1,0 +1,1 @@
+A modern, scalable Amazon Clone backend built with Django REST Framework. It includes JWT authentication, customer and seller management, product catalog, categories, brands, shopping cart, wishlist, orders, payments, shipping, coupons, reviews, notifications, search, analytics, reports, admin dashboard, and RESTful APIs following production-level best practices.
