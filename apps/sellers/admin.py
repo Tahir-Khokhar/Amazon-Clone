@@ -1,24 +1,10 @@
 from django.contrib import admin
-from .models import SearchQuery, SearchHistory, PopularSearch
+from .models import SellerProfile
 
 
-@admin.register(SearchQuery)
-class SearchQueryAdmin(admin.ModelAdmin):
-    list_display = ['query', 'user', 'session_key', 'results_count', 'ip_address', 'created_at']
-    list_filter = ['created_at']
-    search_fields = ['query', 'user__username', 'session_key', 'ip_address']
-    readonly_fields = ['created_at']
-
-
-@admin.register(SearchHistory)
-class SearchHistoryAdmin(admin.ModelAdmin):
-    list_display = ['user', 'query', 'created_at']
-    list_filter = ['created_at']
-    search_fields = ['user__username', 'query']
-    readonly_fields = ['created_at']
-
-
-@admin.register(PopularSearch)
-class PopularSearchAdmin(admin.ModelAdmin):
-    list_display = ['query', 'count']
-    search_fields = ['query']
+@admin.register(SellerProfile)
+class SellerProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'store_name', 'is_verified', 'is_active', 'commission_rate', 'total_sales', 'total_revenue', 'created_at']
+    list_filter = ['is_verified', 'is_active']
+    search_fields = ['user__username', 'store_name', 'phone_number']
+    readonly_fields = ['total_sales', 'total_revenue', 'created_at', 'updated_at']

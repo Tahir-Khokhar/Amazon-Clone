@@ -1,39 +1,37 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
-class Review(models.Model):
-    product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        choices=[(i, i) for i in range(1, 6)]
-    )
-    title = models.CharField(max_length=200)
-    comment = models.TextField()
-    images = models.JSONField(default=list, blank=True)
-    is_verified_purchase = models.BooleanField(default=False)
-    helpful_count = models.IntegerField(default=0)
-    is_approved = models.BooleanField(default=True)
+class SearchQuery(models.Model):
+    query = models.CharField(max_length=200)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    session_key = models.CharField(max_length=40, blank=True)
+    results_count = models.IntegerField(default=0)
+    ip_address = models.GenericIPAddressField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.query
+
+
+class SearchHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='search_history')
+    query = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('product', 'user')
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.product.name} - {self.user.username}"
+        return self.query
 
 
-class ReviewLike(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+class PopularSearch(models.Model):
+    query = models.CharField(max_length=200, unique=True)
+    count = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ('review', 'user')
+        ordering = ['-count']
 
     def __str__(self):
-        return f"{self.user.username} likes {self.review.id}"
+        return self.query

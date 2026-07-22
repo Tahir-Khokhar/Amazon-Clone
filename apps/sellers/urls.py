@@ -1,11 +1,18 @@
 from django.urls import path
-from .views import SearchView, SearchHistoryView, PopularSearchesView, AutocompleteView
+from .views import (
+    SellerDashboardView,
+    SellerProductsView,
+    SellerOrdersView,
+    SellerCouponsView,
+    SellerAnalyticsView,
+)
 
-app_name = 'search'
+app_name = 'sellers'
 
 urlpatterns = [
-    path('', SearchView.as_view(), name='search'),
-    path('history/', SearchHistoryView.as_view(), name='search-history'),
-    path('popular/', PopularSearchesView.as_view(), name='popular-searches'),
-    path('autocomplete/', AutocompleteView.as_view(), name='autocomplete'),
+    path('dashboard/', SellerDashboardView.as_view(), name='dashboard'),
+    path('products/', SellerProductsView.as_view(), name='products'),
+    path('orders/', SellerOrdersView.as_view(), name='orders'),
+    path('coupons/', SellerCouponsView.as_view(), name='coupons'),
+    path('analytics/', SellerAnalyticsView.as_view(), name='analytics'),
 ]

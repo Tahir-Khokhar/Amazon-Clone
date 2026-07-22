@@ -1,23 +1,30 @@
 from rest_framework import serializers
-from .models import SearchQuery, SearchHistory, PopularSearch
+from .models import SellerProfile
 
 
-class SearchQuerySerializer(serializers.ModelSerializer):
+class SellerProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SearchQuery
+        model = SellerProfile
         fields = '__all__'
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-class SearchHistorySerializer(serializers.ModelSerializer):
+class SellerDashboardSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SearchHistory
+        model = SellerProfile
         fields = '__all__'
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-class PopularSearchSerializer(serializers.ModelSerializer):
+class SellerProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PopularSearch
+        model = SellerProfile
         fields = '__all__'
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class SellerOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerProfile
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'updated_at']
