@@ -1,3 +1,23 @@
 from django.contrib import admin
+from .models import Wishlist, WishlistItem
 
-# Register your models here.
+
+class WishlistItemInline(admin.TabularInline):
+    model = WishlistItem
+    extra = 0
+    raw_id_fields = ['product', 'variant']
+
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ['user']
+    search_fields = ['user__username']
+    inlines = [WishlistItemInline]
+
+
+@admin.register(WishlistItem)
+class WishlistItemAdmin(admin.ModelAdmin):
+    list_display = ['wishlist', 'product', 'variant', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['wishlist__user__username', 'product__name']
+    raw_id_fields = ['wishlist', 'product', 'variant']
