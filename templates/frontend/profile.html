@@ -1,0 +1,361 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="text-2xl font-bold text-orange-500">Amazon Clone</a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/products" class="text-gray-700 hover:text-orange-500">Products</a>
+                    <a href="/categories" class="text-gray-700 hover:text-orange-500">Categories</a>
+                    <a href="/deals" class="text-gray-700 hover:text-orange-500">Deals</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <a href="/wishlist" class="relative text-gray-700 hover:text-orange-500">Wishlist</a>
+                    <a href="/cart" class="relative text-gray-700 hover:text-orange-500">Cart <span id="cart-count" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-orange-500 rounded-full hidden">0</span></a>
+                    <a href="/login" class="text-gray-700 hover:text-orange-500">Login</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1">
+        <section class="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">My Profile</h1>
+                <p class="text-lg opacity-90">Manage your account settings and preferences</p>
+            </div>
+        </section>
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div id="loginPrompt" class="hidden max-w-md mx-auto bg-white border border-gray-200 rounded-lg p-8 text-center">
+                <p class="text-gray-600 mb-4">Please log in to view and manage your profile.</p>
+                <a href="/login" class="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">Sign In</a>
+            </div>
+            <div id="profileContent" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
+                            <div class="relative inline-block mb-4">
+                                <img id="profilePicturePreview" src="{% static 'frontend/default-avatar.svg' %}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-orange-500 mx-auto bg-gray-100">
+                                <label for="profilePictureInput" class="absolute bottom-0 right-0 bg-orange-500 text-white p-2 rounded-full cursor-pointer hover:bg-orange-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                </label>
+                                <input type="file" id="profilePictureInput" accept="image/*" class="hidden">
+                            </div>
+                            <h2 id="displayName" class="text-xl font-bold text-gray-900">User Name</h2>
+                            <p id="displayEmail" class="text-gray-500">user@example.com</p>
+                            <span id="displayRole" class="inline-block mt-2 px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full">Customer</span>
+                            <div id="pictureUploadStatus" class="mt-4 text-sm hidden"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="border-b border-gray-200">
+                                <nav class="flex -mb-px">
+                                    <button onclick="showTab('personal')" id="tab-personal" class="profile-tab flex-1 py-4 px-6 text-center border-b-2 border-orange-500 text-orange-600 font-medium">Personal Information</button>
+                                    <button onclick="showTab('password')" id="tab-password" class="profile-tab flex-1 py-4 px-6 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">Change Password</button>
+                                </nav>
+                            </div>
+                            <div class="p-6">
+                                <div id="panel-personal" class="profile-panel">
+                                    <form id="profileForm" class="space-y-6">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                                <input type="text" id="username" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                <input type="email" id="email" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                                <input type="tel" id="phoneNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                                <input type="date" id="dateOfBirth" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                                <select id="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                                    <option value="">Select Gender</option>
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                                            <textarea id="bio" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Tell us about yourself..."></textarea>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <p id="profileFormStatus" class="text-sm hidden"></p>
+                                            <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="panel-password" class="profile-panel hidden">
+                                    <form id="passwordForm" class="space-y-6 max-w-md">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                                            <input type="password" id="oldPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                                            <input type="password" id="newPassword" required minlength="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                                            <input type="password" id="newPassword2" required minlength="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <p id="passwordFormStatus" class="text-sm hidden"></p>
+                                            <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">Update Password</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="bg-gray-900 text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-orange-500 mb-4">Amazon Clone</h3>
+                    <p class="text-gray-400">Your one-stop shop for everything you need.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/products" class="hover:text-white">All Products</a></li>
+                        <li><a href="/deals" class="hover:text-white">Today's Deals</a></li>
+                        <li><a href="/categories" class="hover:text-white">Categories</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Account</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/login" class="hover:text-white">Sign In</a></li>
+                        <li><a href="/register" class="hover:text-white">Register</a></li>
+                        <li><a href="/orders" class="hover:text-white">Order History</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/support" class="hover:text-white">Help Center</a></li>
+                        <li><a href="/support/faqs" class="hover:text-white">FAQs</a></li>
+                        <li><a href="/support/tickets" class="hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Amazon Clone. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+<script>
+    const token = localStorage.getItem('access_token');
+    const authLink = document.getElementById('authLink');
+    const loginPrompt = document.getElementById('loginPrompt');
+    const profileContent = document.getElementById('profileContent');
+
+    function getAuthHeaders() {
+        const t = localStorage.getItem('access_token');
+        return t ? { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' } : {};
+    }
+
+    function getMultipartHeaders() {
+        const t = localStorage.getItem('access_token');
+        return t ? { 'Authorization': `Bearer ${t}` } : {};
+    }
+
+    function updateAuthUI() {
+        const t = localStorage.getItem('access_token');
+        if (t) {
+            authLink.textContent = 'Logout';
+            authLink.href = '#';
+            authLink.onclick = () => {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                window.location.href = '/';
+            };
+        } else {
+            authLink.textContent = 'Login';
+            authLink.href = '/login';
+            authLink.onclick = null;
+        }
+    }
+
+    function showTab(tab) {
+        document.querySelectorAll('.profile-tab').forEach(el => {
+            el.classList.remove('border-orange-500', 'text-orange-600');
+            el.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.querySelectorAll('.profile-panel').forEach(el => el.classList.add('hidden'));
+        const activeTab = document.getElementById('tab-' + tab);
+        const activePanel = document.getElementById('panel-' + tab);
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+        activeTab.classList.add('border-orange-500', 'text-orange-600');
+        activePanel.classList.remove('hidden');
+    }
+
+    async function fetchProfile() {
+        if (!token) {
+            loginPrompt.classList.remove('hidden');
+            profileContent.classList.add('hidden');
+            return;
+        }
+        try {
+            const [userRes, profileRes] = await Promise.all([
+                fetch('/api/auth/me/', { headers: getAuthHeaders() }),
+                fetch('/api/auth/profile/', { headers: getAuthHeaders() })
+            ]);
+            if (!userRes.ok || !profileRes.ok) {
+                throw new Error('Failed to fetch profile');
+            }
+            const userData = await userRes.json();
+            const profileData = await profileRes.json();
+
+            document.getElementById('username').value = userData.username || '';
+            document.getElementById('email').value = userData.email || '';
+            document.getElementById('phoneNumber').value = profileData.phone_number || userData.phone_number || '';
+            document.getElementById('dateOfBirth').value = profileData.date_of_birth || '';
+            document.getElementById('gender').value = profileData.gender || '';
+            document.getElementById('bio').value = profileData.bio || '';
+
+            document.getElementById('displayName').textContent = userData.username || 'User';
+            document.getElementById('displayEmail').textContent = userData.email || '';
+            document.getElementById('displayRole').textContent = userData.role ? userData.role.charAt(0).toUpperCase() + userData.role.slice(1) : 'Customer';
+
+            const pic = profileData.profile_picture;
+            document.getElementById('profilePicturePreview').src = pic ? (pic.startsWith('http') ? pic : '/' + pic) : '{% static "frontend/default-avatar.svg" %}';
+
+            loginPrompt.classList.add('hidden');
+            profileContent.classList.remove('hidden');
+        } catch (err) {
+            loginPrompt.classList.remove('hidden');
+            profileContent.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const statusEl = document.getElementById('profileFormStatus');
+        statusEl.classList.add('hidden');
+        try {
+            const res = await fetch('/api/auth/profile/', {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    phone_number: document.getElementById('phoneNumber').value,
+                    date_of_birth: document.getElementById('dateOfBirth').value || null,
+                    gender: document.getElementById('gender').value,
+                    bio: document.getElementById('bio').value,
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                statusEl.textContent = 'Profile updated successfully!';
+                statusEl.classList.remove('hidden', 'text-red-500');
+                statusEl.classList.add('text-green-600');
+            } else {
+                statusEl.textContent = data.detail || data.message || 'Failed to update profile.';
+                statusEl.classList.remove('hidden', 'text-green-600');
+                statusEl.classList.add('text-red-500');
+            }
+        } catch (err) {
+            statusEl.textContent = 'Network error. Please try again.';
+            statusEl.classList.remove('hidden', 'text-green-600');
+            statusEl.classList.add('text-red-500');
+        }
+    });
+
+    document.getElementById('profilePictureInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('pictureUploadStatus');
+        statusEl.classList.remove('hidden');
+        statusEl.classList.remove('text-green-600', 'text-red-500');
+        statusEl.classList.add('text-gray-500');
+        statusEl.textContent = 'Uploading...';
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        try {
+            const t = localStorage.getItem('access_token');
+            const res = await fetch('/api/auth/profile/picture/', {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${t}` },
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                statusEl.textContent = 'Profile picture updated!';
+                statusEl.classList.remove('text-gray-500', 'text-red-500');
+                statusEl.classList.add('text-green-600');
+                const pic = data.profile_picture;
+                document.getElementById('profilePicturePreview').src = pic ? (pic.startsWith('http') ? pic : '/' + pic) : '{% static "frontend/default-avatar.svg" %}';
+            } else {
+                statusEl.textContent = data.detail || data.message || 'Failed to upload picture.';
+                statusEl.classList.remove('text-gray-500', 'text-green-600');
+                statusEl.classList.add('text-red-500');
+            }
+        } catch (err) {
+            statusEl.textContent = 'Network error. Please try again.';
+            statusEl.classList.remove('text-gray-500', 'text-green-600');
+            statusEl.classList.add('text-red-500');
+        }
+    });
+
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const statusEl = document.getElementById('passwordFormStatus');
+        statusEl.classList.add('hidden');
+        const oldPassword = document.getElementById('oldPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const newPassword2 = document.getElementById('newPassword2').value;
+        if (newPassword !== newPassword2) {
+            statusEl.textContent = 'New passwords do not match.';
+            statusEl.classList.remove('hidden', 'text-green-600');
+            statusEl.classList.add('text-red-500');
+            return;
+        }
+        try {
+            const res = await fetch('/api/auth/change-password/', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                statusEl.textContent = 'Password updated successfully!';
+                statusEl.classList.remove('hidden', 'text-red-500');
+                statusEl.classList.add('text-green-600');
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('newPassword2').value = '';
+            } else {
+                statusEl.textContent = data.detail || data.message || 'Failed to update password.';
+                statusEl.classList.remove('hidden', 'text-green-600');
+                statusEl.classList.add('text-red-500');
+            }
+        } catch (err) {
+            statusEl.textContent = 'Network error. Please try again.';
+            statusEl.classList.remove('hidden', 'text-green-600');
+            statusEl.classList.add('text-red-500');
+        }
+    });
+
+    updateAuthUI();
+    fetchProfile();
+</script>
+{% endblock %}
