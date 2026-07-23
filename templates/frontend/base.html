@@ -1,0 +1,68 @@
+{% load static %}
+{% load frontend_extras %}
+<!DOCTYPE html>
+<html lang="en" class="h-full antialiased">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="{% static 'frontend/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2' %}" as="font" crossorigin type="font/woff2">
+    <link rel="preload" href="{% static 'frontend/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2' %}" as="font" crossorigin type="font/woff2">
+    <link rel="stylesheet" href="{% static 'frontend/_next/static/chunks/0fydvdapf93qk.css' %}" data-precedence="next">
+    <title>Amazon Clone</title>
+    <meta name="description" content="E-commerce marketplace built with Next.js and Django">
+    <link rel="icon" href="{% static 'frontend/favicon.ico' %}" sizes="256x256" type="image/x-icon">
+</head>
+<body class="min-h-full flex flex-col">
+    {% block content %}{% endblock %}
+    <script src="{% static 'frontend/_next/static/chunks/3-5k80pt3ds20.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/15orcrkp-_9ct.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/0iec5q4ack_04.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/082obv3v03b-9.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/turbopack-1g6a9v4tn0fia.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/29ytnugy9284i.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/14yu6bhb58nkw.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/14mrh2-p_w84d.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/3haovddtzj8wl.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/2nwbdxamfk6jf.js' %}" async></script>
+    <script src="{% static 'frontend/_next/static/chunks/0cz1d0mv5g_q7.js' %}" nomodule></script>
+    <script>
+    async function addToCart(productId, quantity = 1) {
+        try {
+            const res = await fetch('/api/cart/add/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                body: JSON.stringify({product: productId, quantity})
+            });
+            if (!res.ok) throw new Error('Failed to add item');
+            const data = await res.json();
+            alert('Added to cart!');
+            if (typeof updateCartCount === 'function') updateCartCount();
+            return data;
+        } catch (e) {
+            alert(e.message || 'Could not add to cart');
+        }
+    }
+    function getCookie(name) {
+        const value = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return value ? value.pop() : '';
+    }
+    async function loadCartCount() {
+        try {
+            const res = await fetch('/api/cart/');
+            if (!res.ok) return;
+            const data = await res.json();
+            const count = data.length ? data.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0;
+            const el = document.getElementById('cart-count');
+            if (el) {
+                el.textContent = count;
+                el.style.display = count > 0 ? 'inline' : 'none';
+            }
+        } catch (e) {}
+    }
+    function updateCartCount() {
+        loadCartCount();
+    }
+    document.addEventListener('DOMContentLoaded', loadCartCount);
+    </script>
+</body>
+</html>
