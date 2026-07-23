@@ -1,0 +1,149 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="text-2xl font-bold text-orange-500">Amazon Clone</a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/products" class="text-gray-700 hover:text-orange-500">Products</a>
+                    <a href="/categories" class="text-gray-700 hover:text-orange-500">Categories</a>
+                    <a href="/deals" class="text-gray-700 hover:text-orange-500">Deals</a>
+                </nav>
+                <form action="/products" method="get" class="hidden md:flex items-center">
+                    <input type="text" name="q" placeholder="Search products..." class="border border-gray-300 rounded-l-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-48">
+                    <button type="submit" class="bg-orange-500 text-white px-3 py-1.5 rounded-r-md hover:bg-orange-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>
+                <div class="flex items-center space-x-4">
+                    <a href="/wishlist" class="relative text-gray-700 hover:text-orange-500">Wishlist</a>
+                    <a href="/cart" class="relative text-gray-700 hover:text-orange-500">Cart <span id="cart-count" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-orange-500 rounded-full hidden">0</span></a>
+                    <a href="/login" class="text-gray-700 hover:text-orange-500">Login</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1">
+        <section class="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">Welcome to Amazon Clone</h1>
+                <p class="text-xl mb-8">Discover the best products at unbeatable prices</p>
+                <a href="/products" class="inline-block bg-white text-orange-500 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">Shop Now</a>
+            </div>
+        </section>
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h2 class="text-3xl font-bold mb-8">Featured Products</h2>
+            {% if featured_products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for product in featured_products %}
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
+                    <a href="/products/{{ product.slug }}/" class="block">
+                        <div class="bg-gray-100 rounded-t-lg overflow-hidden h-48 flex items-center justify-center">
+                            {% with primary_image=product.images.all|first %}
+                                {% if primary_image %}
+                                    <img src="{{ primary_image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy" />
+                                {% else %}
+                                    <div class="text-gray-400 text-4xl">📦</div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col">
+                            <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
+                            <h3 class="text-sm font-medium text-gray-900 mb-2 line-clamp-2">{{ product.name }}</h3>
+                            <div class="mt-auto flex items-center justify-between">
+                                <div>
+                                    {% if product.discount_price %}
+                                        <span class="text-lg font-bold text-gray-900">${{ product.discount_price }}</span>
+                                        <span class="text-sm text-gray-400 line-through ml-2">${{ product.price }}</span>
+                                    {% else %}
+                                        <span class="text-lg font-bold text-gray-900">${{ product.price }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if product.discount_price %}
+                                    <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded font-semibold">SALE</span>
+                                {% endif %}
+                            </div>
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <span class="text-yellow-500">★★★★☆</span>
+                                <span class="ml-1">({{ product.reviews.count }})</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="px-4 pb-4">
+                        <a href="/products/{{ product.slug }}/" class="block w-full text-center bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition-colors text-sm font-medium">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-500">No featured products available yet. Check back soon!</p>
+            </div>
+            {% endif %}
+        </section>
+        <section class="bg-gray-100 py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🚚</div>
+                        <h3 class="text-xl font-semibold mb-2">Free Shipping</h3>
+                        <p class="text-gray-600">On orders over $50</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🔒</div>
+                        <h3 class="text-xl font-semibold mb-2">Secure Payment</h3>
+                        <p class="text-gray-600">100% secure checkout</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">↩️</div>
+                        <h3 class="text-xl font-semibold mb-2">Easy Returns</h3>
+                        <p class="text-gray-600">30-day return policy</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="bg-gray-900 text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-orange-500 mb-4">Amazon Clone</h3>
+                    <p class="text-gray-400">Your one-stop shop for everything you need.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/products" class="hover:text-white">All Products</a></li>
+                        <li><a href="/deals" class="hover:text-white">Today's Deals</a></li>
+                        <li><a href="/categories" class="hover:text-white">Categories</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Account</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/login" class="hover:text-white">Sign In</a></li>
+                        <li><a href="/register" class="hover:text-white">Register</a></li>
+                        <li><a href="/orders" class="hover:text-white">Order History</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/support" class="hover:text-white">Help Center</a></li>
+                        <li><a href="/support/faqs" class="hover:text-white">FAQs</a></li>
+                        <li><a href="/support/tickets" class="hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Amazon Clone. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
