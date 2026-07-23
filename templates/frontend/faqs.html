@@ -1,0 +1,91 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="text-2xl font-bold text-orange-500">Amazon Clone</a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/products" class="text-gray-700 hover:text-orange-500">Products</a>
+                    <a href="/categories" class="text-gray-700 hover:text-orange-500">Categories</a>
+                    <a href="/deals" class="text-gray-700 hover:text-orange-500">Deals</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <a href="/wishlist" class="relative text-gray-700 hover:text-orange-500">Wishlist</a>
+                    <a href="/cart" class="relative text-gray-700 hover:text-orange-500">Cart <span id="cart-count" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-orange-500 rounded-full hidden">0</span></a>
+                    <a href="/login" class="text-gray-700 hover:text-orange-500">Login</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h1 class="text-3xl font-bold mb-8">Frequently Asked Questions</h1>
+        <div id="faqContainer" class="space-y-4">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                <p class="text-gray-500">Loading FAQs...</p>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-gray-900 text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-orange-500 mb-4">Amazon Clone</h3>
+                    <p class="text-gray-400">Your one-stop shop for everything you need.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/products" class="hover:text-white">All Products</a></li>
+                        <li><a href="/deals" class="hover:text-white">Today's Deals</a></li>
+                        <li><a href="/categories" class="hover:text-white">Categories</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Account</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/login" class="hover:text-white">Sign In</a></li>
+                        <li><a href="/register" class="hover:text-white">Register</a></li>
+                        <li><a href="/orders" class="hover:text-white">Order History</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/support" class="hover:text-white">Help Center</a></li>
+                        <li><a href="/support/faqs" class="hover:text-white">FAQs</a></li>
+                        <li><a href="/support/tickets" class="hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Amazon Clone. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+<script>
+async function loadFAQs() {
+    try {
+        const res = await fetch('/api/support/faqs/');
+        if (!res.ok) throw new Error('Failed to load FAQs');
+        const faqs = await res.json();
+        const container = document.getElementById('faqContainer');
+        if (faqs.length === 0) {
+            container.innerHTML = '<p class="text-gray-500">No FAQs available yet.</p>';
+            return;
+        }
+        container.innerHTML = faqs.map(faq => `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">${faq.question}</h3>
+                <p class="text-gray-700">${faq.answer}</p>
+            </div>
+        `).join('');
+    } catch (err) {
+        document.getElementById('faqContainer').innerHTML = '<p class="text-red-500">Could not load FAQs. Please try again later.</p>';
+    }
+}
+document.addEventListener('DOMContentLoaded', loadFAQs);
+</script>
+{% endblock %}
