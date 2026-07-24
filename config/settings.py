@@ -51,6 +51,13 @@ INSTALLED_APPS = [
     "apps.analytics",
     "apps.support",
     "apps.frontend",
+    "apps.product_qa",
+    "apps.product_compare",
+    "apps.browsing_history",
+    "apps.referrals",
+    "apps.chat",
+    "apps.recommendations",
+    "apps.bulk_operations",
 ]
 
 MIDDLEWARE = [
