@@ -414,4 +414,3 @@ For questions, suggestions, or support, please open an issue on GitHub or contac
 ---
 
 <p align="center">Made with ❤️ using Django & Django REST Framework</p>
-
