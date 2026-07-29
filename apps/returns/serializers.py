@@ -23,6 +23,7 @@ class ReturnRequestCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
+        
         from apps.core.models import SiteConfiguration
         config = SiteConfiguration.get_active()
         if config:
