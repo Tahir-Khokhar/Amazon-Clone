@@ -1,0 +1,105 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block page_title %}Return / Replacement Request - Amazon Clone{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Return / Replacement Request</h1>
+        <p class="text-orange-100 mt-1">Submit a return or replacement request for your order</p>
+    </div>
+</section>
+
+<section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% if order %}
+    <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">Order #{{ order.order_number }}</h2>
+        <p class="text-sm text-gray-500">Placed on {{ order.ordered_at|date:"M d, Y" }}</p>
+        <div class="mt-3 flex items-center gap-4 text-sm">
+            <span class="text-gray-600">Status:</span>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full badge badge-success">{{ order.get_order_status_display }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">New Return Request</h2>
+        <form id="returnForm" method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Return Type</label>
+                <select id="returnType" name="return_type" required class="input-field">
+                    <option value="return">Return</option>
+                    <option value="replacement">Replacement</option>
+                    <option value="refund">Refund</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                <select id="reason" name="reason" required class="input-field">
+                    <option value="">Select a reason</option>
+                    <option value="defective">Defective / Damaged</option>
+                    <option value="wrong_item">Wrong Item</option>
+                    <option value="not_as_described">Not As Described</option>
+                    <option value="changed_mind">Changed Mind</option>
+                    <option value="size_issue">Size Issue</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="4" required class="input-field" placeholder="Please describe the issue in detail..."></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Attachment (optional)</label>
+                <input type="file" id="images" name="images" accept="image/*" multiple class="input-field">
+                <p class="text-xs text-gray-400 mt-1">You can upload multiple images to support your request.</p>
+            </div>
+            <div id="formStatus" class="text-sm hidden"></div>
+            <button type="submit" class="w-full btn-primary">Submit Request</button>
+        </form>
+    </div>
+</section>
+
+<script>
+document.getElementById('returnForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const statusEl = document.getElementById('formStatus');
+    statusEl.classList.add('hidden');
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    const formData = new FormData(form);
+    try {
+        const res = await fetch('/api/returns/create/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+            statusEl.textContent = 'Return request submitted successfully!';
+            statusEl.className = 'text-sm text-green-600';
+            statusEl.classList.remove('hidden');
+            form.reset();
+        } else {
+            const msg = data.detail || JSON.stringify(data);
+            statusEl.textContent = msg;
+            statusEl.className = 'text-sm text-red-600';
+            statusEl.classList.remove('hidden');
+        }
+    } catch (err) {
+        statusEl.textContent = 'Network error. Please try again.';
+        statusEl.className = 'text-sm text-red-600';
+        statusEl.classList.remove('hidden');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Submit Request';
+});
+</script>
+{% endblock %}
