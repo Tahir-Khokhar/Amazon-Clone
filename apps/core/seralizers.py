@@ -1,5 +1,6 @@
+from django.utils import timezone
 from rest_framework import serializers
-from .models import SiteConfiguration
+from .models import SiteConfiguration, Subscription
 
 
 class SiteConfigurationSerializer(serializers.ModelSerializer):
@@ -37,3 +38,22 @@ class SupportInfoSerializer(serializers.Serializer):
     email = serializers.EmailField()
     phone = serializers.CharField()
     is_open = serializers.BooleanField()
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class SubscriptionCreateSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    plan = serializers.ChoiceField(choices=Subscription.PLAN_CHOICES, default='monthly')
+    payment_method = serializers.ChoiceField(choices=[
+        ('stripe', 'Stripe'),
+        ('paypal', 'PayPal'),
+        ('jazzcash', 'JazzCash'),
+        ('easypaisa', 'EasyPaisa'),
+        ('bank_transfer', 'Bank Transfer'),
+    ])
