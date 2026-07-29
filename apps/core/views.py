@@ -1,16 +1,19 @@
+import json
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import View
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
-from .models import SiteConfiguration
+from .models import SiteConfiguration, Subscription
 from .serializers import (
     SiteConfigurationSerializer,
     ShippingRulesSerializer,
     ReturnPolicySerializer,
     PaymentMethodsSerializer,
     SupportInfoSerializer,
+    SubscriptionSerializer,
+    SubscriptionCreateSerializer,
 )
 
 
@@ -174,4 +177,89 @@ class NewsletterSubscribeView(generics.GenericAPIView):
         email = request.data.get("email")
         if not email:
             return Response({"detail": "Email is required."}, status=400)
-        return Response({"message": "Subscription successful."}, status=201)
+        return Response({"message": "Subscription successful.", "subscribe_url": f"/subscribe/premium/?email={email}"}, status=201)
+
+
+class SubscriptionPageView(View):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        from django.shortcuts import render
+        email = request.GET.get('email', '')
+        plan = request.GET.get('plan', 'monthly')
+        context = {
+            'email': email,
+            'plan': plan,
+            'amount': '9.99' if plan == 'monthly' else '99.99',
+        }
+        return render(request, 'frontend/subscription.html', context)
+
+
+class SubscriptionCreateView(generics.CreateAPIView):
+    serializer_class = SubscriptionCreateSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        plan = serializer.validated_data['plan']
+        payment_method = serializer.validated_data['payment_method']
+
+        amount = 9.99 if plan == 'monthly' else 99.99
+        subscription = Subscription.objects.create(
+            email=email,
+            plan=plan,
+            amount=amount,
+            payment_method=payment_method,
+            status='pending',
+            transaction_id=f"SUB-{timezone.now().strftime('%Y%m%d%H%M%S')}",
+        )
+
+        from django.shortcuts import render
+        context = {
+            'subscription': subscription,
+            'amount': amount,
+            'plan': plan,
+            'email': email,
+            'payment_method': payment_method,
+        }
+        return render(request, 'frontend/subscription_payment.html', context)
+
+
+class SubscriptionConfirmView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        from django.shortcuts import render
+        from django.http import JsonResponse
+        try:
+            body = json.loads(request.body) if request.body else {}
+        except Exception:
+            body = {}
+        transaction_id = body.get('transaction_id')
+        payment_status = body.get('status', 'completed')
+
+        try:
+            subscription = Subscription.objects.get(transaction_id=transaction_id)
+        except Subscription.DoesNotExist:
+            return JsonResponse({'detail': 'Subscription not found.'}, status=404)
+
+        if payment_status == 'completed':
+            subscription.status = 'active'
+            subscription.starts_at = timezone.now()
+            if subscription.plan == 'monthly':
+                subscription.expires_at = timezone.now() + timezone.timedelta(days=30)
+            else:
+                subscription.expires_at = timezone.now() + timezone.timedelta(days=365)
+        else:
+            subscription.status = 'pending'
+
+        subscription.payment_data = body
+        subscription.save()
+
+        context = {
+            'subscription': subscription,
+            'success': payment_status == 'completed',
+        }
+        return render(request, 'frontend/subscription_success.html', context)
