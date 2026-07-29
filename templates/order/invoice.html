@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice - {{ order.order_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { text-align: center; padding: 20px; }
+        .order-details { margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total { text-align: right; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Invoice</h1>
+        <p>Order #: {{ order.order_number }}</p>
+        <p>Date: {{ order.ordered_at|date:"F j, Y" }}</p>
+    </div>
+    <div class="order-details">
+        <h2>Shipping Address</h2>
+        <p>{{ order.shipping_address.full_name }}</p>
+        <p>{{ order.shipping_address.address_line1 }}</p>
+        <p>{{ order.shipping_address.city }}, {{ order.shipping_address.postal_code }}</p>
+        <p>{{ order.shipping_address.country }}</p>
+        
+        <h2>Order Items</h2>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.unit_price }}</td>
+                <td>${{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <h2>Order Summary</h2>
+        <p>Subtotal: ${{ order.subtotal }}</p>
+        <p>Shipping: ${{ order.shipping_cost }}</p>
+        <p>Tax ({{ order.tax_rate }}%): ${{ order.tax_amount }}</p>
+        {% if order.discount_amount %}
+        <p>Discount: -${{ order.discount_amount }}</p>
+        {% endif %}
+        {% if order.gift_wrap_fee %}
+        <p>Gift Wrap: ${{ order.gift_wrap_fee }}</p>
+        {% endif %}
+        <p class="total">Grand Total: ${{ order.grand_total }}</p>
+    </div>
+</body>
+</html>
