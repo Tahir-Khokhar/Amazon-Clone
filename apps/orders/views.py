@@ -42,6 +42,7 @@ class OrderCreateView(generics.CreateAPIView):
         
         user = self.request.user
         validated_data = serializer.validated_data
+        shipping_address_id = validated_data.get('shipping_address_id')
         
         cart = Cart.objects.filter(user=user, status='active').first()
         if not cart or not cart.items.filter(is_saved_for_later=False).exists():
@@ -64,7 +65,6 @@ class OrderCreateView(generics.CreateAPIView):
             if subtotal >= config.free_shipping_threshold:
                 shipping_cost = Decimal('0')
             else:
-                shipping_address_id = validated_data.get('shipping_address_id')
                 try:
                     from apps.addresses.models import Address
                     address = Address.objects.get(pk=shipping_address_id, user=user)
@@ -72,7 +72,6 @@ class OrderCreateView(generics.CreateAPIView):
                 except Exception:
                     shipping_cost = config.standard_shipping_cost
         else:
-            shipping_address_id = validated_data.get('shipping_address_id')
             try:
                 from apps.addresses.models import Address
                 address = Address.objects.get(pk=shipping_address_id, user=user)
@@ -137,7 +136,7 @@ class OrderCreateView(generics.CreateAPIView):
             discount_amount=discount_amount,
             grand_total=grand_total,
             coupon=coupon,
-            shipping_address_id=shipping_address_id,
+            shipping_address=shipping_address,
             billing_address_id=validated_data.get('billing_address_id'),
             payment_method=validated_data.get('payment_method'),
             notes=validated_data.get('notes', ''),
