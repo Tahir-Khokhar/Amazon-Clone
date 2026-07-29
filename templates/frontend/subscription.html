@@ -1,0 +1,92 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Premium Subscription</h1>
+        <p class="text-orange-100 mt-1">Unlock exclusive deals and premium features</p>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Choose Your Plan</h2>
+            <p class="text-gray-600">Get access to exclusive deals, free giveaways, and premium features</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white border-2 border-gray-200 rounded-2xl p-8 hover:border-orange-500 transition-colors">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Monthly</h3>
+                <div class="mb-4">
+                    <span class="text-4xl font-bold text-gray-900">$9.99</span>
+                    <span class="text-gray-500">/month</span>
+                </div>
+                <ul class="space-y-3 mb-6">
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Exclusive member deals
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Free giveaways
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Early access to sales
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Priority support
+                    </li>
+                </ul>
+                <form method="POST" action="/api/core/subscribe/create/" class="block w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="email" value="{{ email }}">
+                    <input type="hidden" name="plan" value="monthly">
+                    <button type="submit" class="w-full btn-primary">Subscribe Monthly</button>
+                </form>
+            </div>
+
+            <div class="bg-white border-2 border-orange-500 rounded-2xl p-8 relative">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Best Value</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Yearly</h3>
+                <div class="mb-4">
+                    <span class="text-4xl font-bold text-gray-900">$99.99</span>
+                    <span class="text-gray-500">/year</span>
+                </div>
+                <ul class="space-y-3 mb-6">
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        All Monthly features
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Save $20 compared to monthly
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Exclusive yearly-only deals
+                    </li>
+                    <li class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        VIP support
+                    </li>
+                </ul>
+                <form method="POST" action="/api/core/subscribe/create/" class="block w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="email" value="{{ email }}">
+                    <input type="hidden" name="plan" value="yearly">
+                    <button type="submit" class="w-full btn-primary">Subscribe Yearly</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-6 text-center">
+            <p class="text-sm text-gray-600">Secure payment powered by Stripe, PayPal, JazzCash, EasyPaisa, and Bank Transfer</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
