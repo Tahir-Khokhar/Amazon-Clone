@@ -61,10 +61,6 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Shipping</span>
-                        <span class="font-medium">${{ shipping|currency }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Shipping</span>
                         <span class="font-medium">
                             {% if shipping == 0 %}
                                 <span class="text-green-600">FREE</span>
@@ -88,19 +84,56 @@
                     {% if user.is_authenticated %}
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
-                            <select name="shipping_address_id" class="w-full border border-gray-300 rounded-md p-2 text-sm" required>
+                            <select id="shippingAddressSelect" name="shipping_address_id" class="w-full border border-gray-300 rounded-md p-2 text-sm" required>
                                 <option value="">Select address</option>
                                 {% for addr in addresses %}
                                     <option value="{{ addr.id }}">{{ addr.full_name }}, {{ addr.street_address }}, {{ addr.city }}, {{ addr.country }}</option>
                                 {% endfor %}
+                                <option value="new">+ Enter New Address</option>
                             </select>
                         </div>
+
+                        <div id="newAddressForm" class="hidden space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" id="newFullName" class="input-field" placeholder="John Doe">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="tel" id="newPhoneNumber" class="input-field" placeholder="+923001234567">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Street Address</label>
+                                    <input type="text" id="newStreetAddress" class="input-field" placeholder="123 Main St, Apt 4">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">City</label>
+                                    <input type="text" id="newCity" class="input-field" placeholder="Karachi">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">State / Province</label>
+                                    <input type="text" id="newState" class="input-field" placeholder="Sindh">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Postal Code</label>
+                                    <input type="text" id="newPostalCode" class="input-field" placeholder="75500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Country</label>
+                                    <input type="text" id="newCountry" class="input-field" placeholder="Pakistan" value="Pakistan">
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
                             <select name="payment_method" class="w-full border border-gray-300 rounded-md p-2 text-sm" required>
                                 <option value="cod">Cash On Delivery</option>
                                 <option value="stripe">Stripe</option>
                                 <option value="paypal">PayPal</option>
+                                <option value="jazzcash">JazzCash</option>
+                                <option value="easypaisa">EasyPaisa</option>
                                 <option value="bank_transfer">Bank Transfer</option>
                             </select>
                         </div>
@@ -127,7 +160,36 @@
 async function submitOrder(e) {
     e.preventDefault();
     const form = e.target;
-    const data = Object.fromEntries(new FormData(form).entries());
+    const selectEl = document.getElementById('shippingAddressSelect');
+    const addressId = selectEl ? selectEl.value : '';
+    const isNewAddress = addressId === 'new';
+
+    let newAddressPayload = null;
+    if (isNewAddress) {
+        const fullName = document.getElementById('newFullName').value.trim();
+        const phoneNumber = document.getElementById('newPhoneNumber').value.trim();
+        const streetAddress = document.getElementById('newStreetAddress').value.trim();
+        const city = document.getElementById('newCity').value.trim();
+        const state = document.getElementById('newState').value.trim();
+        const postalCode = document.getElementById('newPostalCode').value.trim();
+        const country = document.getElementById('newCountry').value.trim();
+
+        if (!fullName || !phoneNumber || !streetAddress || !city || !state || !postalCode || !country) {
+            showToast('Please fill in all address fields.', 'error');
+            return;
+        }
+        newAddressPayload = {
+            full_name: fullName,
+            phone_number: phoneNumber,
+            street_address: streetAddress,
+            city: city,
+            state: state,
+            postal_code: postalCode,
+            country: country,
+            address_type: 'shipping',
+            is_default: false,
+        };
+    }
 
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
@@ -143,13 +205,28 @@ async function submitOrder(e) {
             headers['Authorization'] = 'Bearer ' + token;
         }
 
+        let shippingAddressId = addressId;
+        if (isNewAddress && newAddressPayload) {
+            const addrRes = await fetch('/api/addresses/', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(newAddressPayload)
+            });
+            if (!addrRes.ok) {
+                const err = await addrRes.json();
+                throw new Error(err.detail || err.message || 'Failed to save address.');
+            }
+            const addrData = await addrRes.json();
+            shippingAddressId = addrData.id;
+        }
+
         const res = await fetch('/api/orders/create/', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
-                shipping_address_id: parseInt(data.shipping_address_id),
-                billing_address_id: parseInt(data.shipping_address_id),
-                payment_method: data.payment_method,
+                shipping_address_id: parseInt(shippingAddressId),
+                billing_address_id: parseInt(shippingAddressId),
+                payment_method: form.payment_method.value,
                 notes: 'Order from website'
             })
         });
@@ -165,6 +242,16 @@ async function submitOrder(e) {
         btn.textContent = 'Place Order';
     }
 }
+
+document.getElementById('shippingAddressSelect')?.addEventListener('change', function() {
+    const newAddressForm = document.getElementById('newAddressForm');
+    if (!newAddressForm) return;
+    if (this.value === 'new') {
+        newAddressForm.classList.remove('hidden');
+    } else {
+        newAddressForm.classList.add('hidden');
+    }
+});
 
 const checkoutForm = document.getElementById('checkout-form');
 if (checkoutForm) checkoutForm.addEventListener('submit', submitOrder);
