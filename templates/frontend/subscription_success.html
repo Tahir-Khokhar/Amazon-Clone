@@ -1,0 +1,27 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-green-500 to-green-600 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Subscription {{ success|yesno:"Activated!,Failed" }}</h1>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-2xl mx-auto text-center">
+        <div class="bg-white border border-gray-200 rounded-xl p-8">
+            {% if success %}
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome to Premium!</h2>
+            <p class="text-gray-600 mb-4">Your {{ subscription.plan|title }} subscription is now active.</p>
+            <p class="text-sm text-gray-500 mb-6">Plan: {{ subscription.plan|title }} | Amount: ${{ subscription.amount }} | Valid until: {{ subscription.expires_at|date:"M d, Y" }}</p>
+            {% else %}
+            <div class="text-6xl mb-4">😞</div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
+            <p class="text-gray-600 mb-4">We couldn't process your payment. Please try again.</p>
+            {% endif %}
+            <a href="/" class="inline-block btn-primary">Back to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
