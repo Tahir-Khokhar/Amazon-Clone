@@ -166,7 +166,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 Amazon Clone. All rights reserved. | Total Registered Users: {% user_count %}</p>
+                <p>&copy; 2026 Amazon Clone. All rights reserved. | Total Registered Users: {% user_count %}</p>
             </div>
         </div>
     </footer>
@@ -228,10 +228,22 @@
 
     async function loadCartCount() {
         try {
-            var res = await fetch('/api/cart/');
+            const token = localStorage.getItem('access_token');
+            const headers = { 'X-CSRFToken': getCookie('csrftoken') };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            var res = await fetch('/api/cart/', { headers: headers });
             if (!res.ok) return;
             var data = await res.json();
-            var count = data.length ? data.reduce(function(sum, item) { return sum + (item.quantity || 0); }, 0) : 0;
+            var count = 0;
+            var items = [];
+            if (data && data.results && Array.isArray(data.results) && data.results.length > 0) {
+                items = data.results[0].items || [];
+            } else if (Array.isArray(data) && data.length > 0) {
+                items = data[0].items || [];
+            }
+            count = items.reduce(function(sum, item) { return sum + (item.quantity || 0); }, 0);
             updateBadge('cart-count', count);
             updateBadge('cartCountBadge', count);
         } catch (e) {}
