@@ -4,9 +4,11 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from apps.frontend import urls as frontend_urls
+from apps.core.views import NewsletterSubscribeView
 
 urlpatterns = [
     path('', include(frontend_urls)),
+    # path('api/newsletter/subscribe/', NewsletterSubscribeView.as_view(), name='newsletter-subscribe'),
     path('admin/', admin.site.urls),
     path('api/auth/', include('apps.accounts.urls')),
     path('api/categories/', include('apps.categories.urls')),
@@ -35,6 +37,8 @@ urlpatterns = [
     path('api/referrals/', include('apps.referrals.urls')),
     path('api/chat/', include('apps.chat.urls')),
     path('api/recommendations/', include('apps.recommendations.urls')),
+    path('api/returns/', include('apps.returns.urls')),
+    path('api/checkout/', include('apps.checkout.urls')),
     path('api/bulk/', include('apps.bulk_operations.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
