@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class TimeStampedModel(models.Model):
@@ -47,3 +48,32 @@ class SiteConfiguration(models.Model):
     @classmethod
     def get_active(cls):
         return cls.objects.filter(is_active=True).first() or cls.objects.first()
+
+
+class Subscription(TimeStampedModel):
+    PLAN_CHOICES = (
+        ('monthly', 'Monthly'),
+        ('yearly', 'Yearly'),
+    )
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('active', 'Active'),
+        ('cancelled', 'Cancelled'),
+        ('expired', 'Expired'),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='subscriptions')
+    email = models.EmailField()
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='monthly')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=9.99)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, blank=True)
+    transaction_id = models.CharField(max_length=100, blank=True)
+    payment_data = models.JSONField(default=dict, blank=True)
+    starts_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.email} - {self.plan} ({self.status})"
