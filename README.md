@@ -1,6 +1,6 @@
 # 🛒 Amazon Clone - Full-Stack E-Commerce Platform
 
-> A feature-rich eCommerce platform built with **Django 6** and **Django REST Framework**, inspired by Amazon's core functionality. This project delivers a complete online marketplace experience with a robust REST API, JWT authentication, Celery async tasks, Swagger documentation, and a Django template-based frontend.
+> A feature-rich eCommerce platform built with **Django 6** and **Django REST Framework**, inspired by Amazon's core functionality. This project delivers a complete online marketplace experience with a robust REST API, JWT authentication, Celery async tasks, Swagger documentation, and a Django template-based frontend. Includes advanced AI-powered recommendations, customer-seller chat, bulk data import/export, product comparison, Q&A system, referral rewards, checkout sessions, newsletter subscriptions, and comprehensive return management.
 
 ---
 
@@ -103,6 +103,70 @@
 - Wishlist, Profile, Order History pages
 - Support, FAQ, Contact Us pages
 
+### 🧠 AI Recommendations
+- Product-to-product recommendations with scores & reasons
+- User preference tracking by category
+- Personalized suggestions per user history
+- Collaborative filtering-style recommendations
+
+### 💬 Customer-Seller Chat
+- Dedicated chat rooms between customers and sellers
+- Real-time message history
+- Read/unread message tracking
+- Chat room listing and management
+
+### 🔁 Product Q&A
+- Product-specific questions and answers
+- Official answers from sellers
+- Helpful vote counts on answers
+- Q&A listings per product
+
+### ⚖️ Product Compare
+- Compare up to 4 products side-by-side
+- Persistent compare lists per user
+- Add/remove/clear comparison items
+
+### 📜 Browsing History
+- Track recently viewed products per user
+- Clear browsing history option
+- Ordered by most-recently viewed
+
+### 🎁 Referrals & Rewards
+- Unique referral codes per user
+- Referral reward tracking upon completed orders
+- Referral status lifecycle (Pending → Completed → Cancelled)
+
+### 🛎️ Checkout Session
+- Multi-step checkout sessions (products, shipping, tax, totals)
+- Checkout persistence across page reloads
+- Automatic subtotal/tax/shipping/grand-total calculation
+
+### 📦 Bulk Operations
+- Bulk product import via CSV/Excel
+- Bulk category/brand import
+- Import job status tracking (pending/processing/completed/failed)
+- Product export functionality
+
+### 🔄 Returns & Replacements
+- Dedicated return request system (return/replacement/refund)
+- Return reason categorization (defective, wrong item, not as described, etc.)
+- Return status workflow (Pending → Approved → Rejected → Processing → Completed → Cancelled)
+- Admin notes, refund amounts, and image uploads
+
+### 📰 Newsletter & Subscriptions
+- Newsletter/email subscription support
+- Premium subscription plans (monthly/yearly)
+- Subscription lifecycle management (pending/active/cancelled/expired)
+
+### 📄 Policy Pages
+- Shipping policy, return policy, privacy policy, terms & conditions
+- Admin-manageable via Site Configuration
+
+### ⚙️ Site Configuration
+- Admin-controlled site settings (site name, currency, tax rate, shipping costs)
+- Return window days, auto-approve returns, refund processing days
+- Support hours, SLA response times, contact information
+
 ---
 
 ## 🛠 Tech Stack
@@ -141,9 +205,13 @@ Amazon_Clone/
 │   │   ├── addresses/          # Shipping & billing addresses
 │   │   ├── analytics/          # Page & product view tracking
 │   │   ├── brands/             # Product brand management
+│   │   ├── browsing_history/   # User browsing history tracking
+│   │   ├── bulk_operations/    # Bulk import/export operations
 │   │   ├── cart/               # Shopping cart
 │   │   ├── categories/         # Product categories
-│   │   ├── core/               # Abstract base models
+│   │   ├── chat/               # Customer-seller chat rooms
+│   │   ├── checkout/           # Checkout sessions
+│   │   ├── core/               # Abstract base models & site config
 │   │   ├── coupons/            # Discount coupons
 │   │   ├── customers/          # Customer profiles
 │   │   ├── dashboard/          # Admin dashboard stats
@@ -151,8 +219,13 @@ Amazon_Clone/
 │   │   ├── notifications/      # User notifications
 │   │   ├── orders/             # Order management
 │   │   ├── payments/           # Payment processing
+│   │   ├── product_compare/    # Product comparison lists
+│   │   ├── product_qa/         # Product Q&A system
 │   │   ├── products/           # Product CRUD, variants, images
+│   │   ├── recommendations/    # AI product recommendations
+│   │   ├── referrals/          # Referral codes & rewards
 │   │   ├── reports/            # Sales & analytics reports
+│   │   ├── returns/            # Return & replacement management
 │   │   ├── reviews/            # Product reviews & ratings
 │   │   ├── search/             # Search functionality
 │   │   ├── sellers/            # Seller profiles
@@ -265,6 +338,33 @@ The API is fully documented with **Swagger** and **ReDoc**.
 | `GET /api/dashboard/stats/` | Dashboard statistics (admin) |
 | `GET /api/reports/sales/` | Sales reports (admin) |
 | `GET /api/analytics/page-views/` | Page view analytics (admin) |
+| `GET /api/browsing-history/` | User browsing history |
+| `POST /api/browsing-history/clear/` | Clear browsing history |
+| `GET /api/product-compare/` | View compare list |
+| `POST /api/product-compare/add/<id>/` | Add product to compare |
+| `POST /api/product-compare/remove/<id>/` | Remove product from compare |
+| `POST /api/product-compare/clear/` | Clear compare list |
+| `GET /api/product-qa/products/<slug>/questions/` | Product Q&A |
+| `POST /api/product-qa/products/<slug>/questions/` | Ask a question |
+| `POST /api/product-qa/questions/<id>/answers/` | Answer a question |
+| `GET /api/chat/rooms/` | List chat rooms |
+| `POST /api/chat/rooms/create/` | Create chat room with seller |
+| `GET /api/chat/rooms/<id>/messages/` | Get chat messages |
+| `POST /api/chat/rooms/<id>/messages/` | Send message |
+| `GET /api/recommendations/my/` | Personalized recommendations |
+| `GET /api/recommendations/products/<slug>/` | Related product recommendations |
+| `POST /api/recommendations/generate/` | Generate recommendations |
+| `POST /api/checkout/create/` | Create checkout session |
+| `POST /api/checkout/confirm/` | Confirm & place order |
+| `GET /api/returns/` | List return requests |
+| `POST /api/returns/create/` | Create return request |
+| `POST /api/returns/<id>/admin-update/` | Admin update return |
+| `GET /api/referrals/my-code/` | Get my referral code |
+| `GET /api/referrals/list/` | List referral history |
+| `POST /api/referrals/apply/` | Apply referral code |
+| `POST /api/bulk/import/` | Import products/categories/brands |
+| `GET /api/bulk/imports/` | List import jobs |
+| `GET /api/bulk/export/products/` | Export products |
 
 > **Note:** Most endpoints require authentication via `Authorization: Bearer <token>` header. Role-based permissions apply to seller/admin endpoints.
 
@@ -309,6 +409,16 @@ python manage.py test apps.payments
 | `sellers` | Seller profiles, store management, commissions |
 | `customers` | Customer profiles, loyalty points |
 | `frontend` | Django template-based frontend views |
+| `browsing_history` | User browsing history tracking |
+| `bulk_operations` | Bulk product/category/brand import & export |
+| `chat` | Customer-seller chat rooms & messaging |
+| `checkout` | Multi-step checkout sessions |
+| `product_compare` | Side-by-side product comparison |
+| `product_qa` | Product Q&A with official answers |
+| `recommendations` | AI-powered product recommendations & user preferences |
+| `referrals` | Referral codes, tracking & rewards |
+| `returns` | Return, replacement & refund requests |
+| `core` | Base models, site configuration, newsletter & subscriptions |
 
 ---
 
@@ -348,7 +458,13 @@ The project includes a Django template-based frontend served at `http://localhos
 | Orders | `/orders/` | Order history |
 | Support | `/support/` | Support ticket creation |
 | FAQs | `/faqs/` | Frequently asked questions |
-| Contact | `/contact/` | Contact form |
+| Contact Us | `/contact/` | Contact form |
+| Create Return | `/returns/create/` | Request a return or replacement |
+| Shipping Policy | `/shipping-policy/` | Shipping information |
+| Return Policy | `/return-policy/` | Return & exchange policy |
+| Privacy Policy | `/privacy-policy/` | Privacy policy |
+| Terms | `/terms/` | Terms & conditions |
+| Premium Sub | `/subscribe/premium/` | Premium subscription plans |
 
 ---
 
@@ -364,11 +480,21 @@ The project includes a Django template-based frontend served at `http://localhos
 - [x] Reviews & ratings
 - [x] Admin dashboard & analytics
 - [x] Search functionality
+- [x] Browsing history tracking
+- [x] Product compare & Q&A
+- [x] Customer-seller chat
+- [x] AI-powered recommendations
+- [x] Referral rewards system
+- [x] Checkout sessions
+- [x] Bulk import/export
+- [x] Returns & replacements management
+- [x] Newsletter & premium subscriptions
+- [x] Policy pages & site configuration
 - [ ] Push notifications (WebSocket)
 - [ ] Mobile app API optimization
 - [ ] Multi-language support
 - [ ] Multi-currency support
-- [ ] Advanced recommendation engine
+- [ ] Advanced recommendation engine (ML-based)
 - [ ] Docker containerization
 - [ ] CI/CD pipeline
 
@@ -414,3 +540,4 @@ For questions, suggestions, or support, please open an issue on GitHub or contac
 ---
 
 <p align="center">Made with ❤️ using Django & Django REST Framework</p>
+
