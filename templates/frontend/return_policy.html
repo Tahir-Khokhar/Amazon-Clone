@@ -1,0 +1,37 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold">Return Policy</h1>
+        <p class="text-orange-100 mt-1">Easy returns within 30 days of delivery</p>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white border border-gray-200 rounded-xl p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">30-Day Returns</h2>
+        <p class="text-gray-700 mb-4">We want you to be completely satisfied with your purchase. If you are not happy with your order, you can return it within <strong>30 days</strong> of delivery for a full refund or exchange.</p>
+
+        <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">Return Eligibility</h3>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li>Items must be in original condition, unused, and in original packaging</li>
+            <li>Proof of purchase is required</li>
+            <li>Items purchased on sale or clearance may have different return terms</li>
+            <li>Digital products and gift cards are non-returnable</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">How to Return</h3>
+        <ol class="list-decimal list-inside text-gray-700 space-y-2">
+            <li>Go to your <a href="/orders/" class="text-orange-600 underline">Order History</a></li>
+            <li>Select the item you want to return</li>
+            <li>Choose return reason and submit request</li>
+            <li>Pack the item securely with all original materials</li>
+            <li>Drop off at the nearest carrier location</li>
+        </ol>
+
+        <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-2">Refund Processing</h3>
+        <p class="text-gray-700">Refunds are processed within <strong>7 business days</strong> after we receive the returned item. The refund will be issued to the original payment method.</p>
+    </div>
+</section>
+{% endblock %}
